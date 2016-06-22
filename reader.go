@@ -27,10 +27,10 @@ import (
 // TODO: copy similar boilerplate from golang.org/src/encoding/csv/reader.go
 //
 type Reader struct {
-	s	*bufio.Scanner
-	line	int
-	column	int
-	field	bytes.Buffer
+	s      *bufio.Scanner
+	line   int
+	column int
+	field  bytes.Buffer
 }
 
 // NewReader returns a new Reader that reads from r
@@ -57,17 +57,17 @@ func (r *Reader) Read() (record *Record, err error) {
 	return record, nil
 }
 
-// func (r *Reader) ReadAll() (records []Record, err error) 
+// func (r *Reader) ReadAll() (records []Record, err error)
 
 // parseRecord parses the elements of a single row into a GFF3 struct
-func (r *Reader) parseRecord() (*Record, err error) {
+func (r *Reader) parseRecord() (rec *Record, err error) {
 	// line numbering starts with 1, not 0, so increment straightaway
 	r.line++
-	_ = r.s.Scan()	// read a line
+	_ = r.s.Scan() // read a line
 
 	// Examine first byte -- if comment, skip this row
 	if r.s.Bytes()[0] == '#' {
-		return nil, nil	// no record, no error
+		return nil, nil // no record, no error
 		// returning nil might break Filtering which expects *Record
 		// however I think the for {} loop in Read() will keep looking
 		// for a valid record
@@ -78,13 +78,13 @@ func (r *Reader) parseRecord() (*Record, err error) {
 	// split into fields
 	// this will allocate a new string and a new array (2 alloc/op)
 	fields := strings.Split(r.s.Text(), "\t")
-	if len(fields != 9) {
+	if len(fields) != 9 {
 		// comment lines should have already been dealt with,
 		// so this is a malformed record
 		log.Fatalln("Malformed record: ", r.s.Text())
 	}
 
-	rec := new(Record)
+	rec = new(Record)
 	rec.seqidField = fields[0]
 	rec.sourceField = fields[1]
 	rec.typeField = fields[2]
@@ -93,7 +93,13 @@ func (r *Reader) parseRecord() (*Record, err error) {
 	rec.scoreField, _ = strconv.ParseFloat(fields[5], 64)
 	rec.strandField = fields[6][0] // one byte char: +, -, ., or ?
 	rec.phaseField, _ = strconv.Atoi(fields[7])
-	rec.attributesField = fields[8]
+	// must initialize the nil map or face a runtime panic
+	rec.attributesField = make(map[string]string)
+	for _, attribute := range strings.Split(fields[8], ";") {
+		key := strings.Split(attribute, "=")[0]
+		value := strings.Split(attribute, "=")[1]
+		rec.attributesField[key] = value
+	}
 
 	// validate is currently stub function always true
 	if rec.validate() {
@@ -108,6 +114,7 @@ func (r *Reader) parseRecord() (*Record, err error) {
 // loads a GFF3 record from a line of input into the Record struct
 // Wrote this before conversion to Reader object
 // deprecated - prefixed with x to avoid export
+/*
 func xLoadRecord(line string) *Record {
 	// ignore comment lines
 	if line[0] == '#' {
@@ -134,7 +141,7 @@ func xLoadRecord(line string) *Record {
 	r.scoreField, _ = strconv.ParseFloat(fields[5], 64)
 	r.strandField = fields[6][0] // one byte char: +, -, ., or ?
 	r.phaseField, _ = strconv.Atoi(fields[7])
-	r.attributesField = fields[8]
+	//r.attributesField = fields[8]
 
 	// validate is currently stub function always true
 	if r.validate() {
@@ -145,4 +152,4 @@ func xLoadRecord(line string) *Record {
 		return r
 	}
 }
-
+*/

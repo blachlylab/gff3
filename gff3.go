@@ -7,14 +7,7 @@ package gff3
 
 // Imports
 // standard library
-import (
-	"bufio"
-	"bytes"
-	"io"
-	"log"
-	"strconv"
-	"strings"
-)
+import "strings"
 
 // A Record represents a single element in a GFF3 file -- a single row
 //
@@ -24,14 +17,13 @@ type Record struct {
 	seqidField      string
 	sourceField     string
 	typeField       string
-	startField      uint
-	endField        uint
+	startField      int
+	endField        int
 	scoreField      float64
 	strandField     byte
 	phaseField      int
 	attributesField map[string]string
 }
-
 
 // checks validity of GFF3 record
 // stub function always true
@@ -97,7 +89,8 @@ func (r *Record) FilterByAttribute(attribute, filterValue string) *Record {
 		return r
 	}
 	// if attribute not found, return incomplete or empty record
-	if rawv, ok := r.attributesField[attribute]; !ok {
+	rawv, ok := r.attributesField[attribute]
+	if !ok {
 		r.Complete = false
 		return r
 	}
