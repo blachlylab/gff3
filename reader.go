@@ -96,8 +96,9 @@ func (r *Reader) parseRecord() (rec *Record, err error) {
 	// must initialize the nil map or face a runtime panic
 	rec.attributesField = make(map[string]string)
 	for _, attribute := range strings.Split(fields[8], ";") {
-		key := strings.Split(attribute, "=")[0]
-		value := strings.Split(attribute, "=")[1]
+		kv := strings.Split(attribute, "=")
+		key := k[0]
+		value := v[1]
 		rec.attributesField[key] = value
 	}
 
