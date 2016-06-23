@@ -99,6 +99,7 @@ func (r *Reader) parseRecord() (rec *Record, err error) {
 		kv := strings.Split(attribute, "=")
 		key := k[0]
 		value := v[1]
+		// TODO remove key, value allocs see if speed increase
 		rec.attributesField[key] = value
 	}
 
