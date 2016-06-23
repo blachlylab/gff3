@@ -97,8 +97,8 @@ func (r *Reader) parseRecord() (rec *Record, err error) {
 	rec.attributesField = make(map[string]string)
 	for _, attribute := range strings.Split(fields[8], ";") {
 		kv := strings.Split(attribute, "=")
-		key := k[0]
-		value := v[1]
+		key := kv[0]
+		value := kv[1]
 		// TODO remove key, value allocs see if speed increase
 		rec.attributesField[key] = value
 	}
