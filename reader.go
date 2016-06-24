@@ -63,8 +63,11 @@ func (r *Reader) Read() (record *Record, err error) {
 func (r *Reader) parseRecord() (rec *Record, err error) {
 	// line numbering starts with 1, not 0, so increment straightaway
 	r.line++
-	_ = r.s.Scan() // read a line
-
+	ok := r.s.Scan() // read a line, checking for end of file
+	// is the scanner empty?
+	if !ok {
+		return nil, io.EOF
+	}
 	// Examine first byte -- if comment, skip this row
 	if r.s.Bytes()[0] == '#' {
 		return nil, nil // no record, no error
@@ -95,12 +98,10 @@ func (r *Reader) parseRecord() (rec *Record, err error) {
 	rec.phaseField, _ = strconv.Atoi(fields[7])
 	// must initialize the nil map or face a runtime panic
 	rec.attributesField = make(map[string]string)
+	var kv []string
 	for _, attribute := range strings.Split(fields[8], ";") {
-		kv := strings.Split(attribute, "=")
-		key := kv[0]
-		value := kv[1]
-		// TODO remove key, value allocs see if speed increase
-		rec.attributesField[key] = value
+		kv = strings.Split(attribute, "=")
+		rec.attributesField[kv[0]] = kv[1]
 	}
 
 	// validate is currently stub function always true
