@@ -98,10 +98,10 @@ func (r *Reader) parseRecord() (rec *Record, err error) {
 	rec.PhaseField, _ = strconv.Atoi(fields[7])
 	// must initialize the nil map or face a runtime panic
 	rec.AttributesField = make(map[string]string)
-	var kv []string
+	var i int
 	for _, attribute := range strings.Split(fields[8], ";") {
-		kv = strings.Split(attribute, "=")
-		rec.AttributesField[kv[0]] = kv[1]
+		i = strings.Index(attribute, "=")
+		rec.AttributesField[attribute[:i]] = attribute[i+1:]
 	}
 
 	// validate is currently stub function always true
