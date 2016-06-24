@@ -14,20 +14,20 @@ import "strings"
 // it can be received from Read or passed to Write
 type Record struct {
 	Complete        bool // 'true' once all fields loaded
-	seqidField      string
-	sourceField     string
-	typeField       string
-	startField      int
-	endField        int
-	scoreField      float64
-	strandField     byte
-	phaseField      int
-	attributesField map[string]string
+	SeqidField      string
+	SourceField     string
+	TypeField       string
+	StartField      int
+	EndField        int
+	ScoreField      float64
+	StrandField     byte
+	PhaseField      int
+	AttributesField map[string]string
 }
 
 // checks validity of GFF3 record
 // stub function always true
-func (r *Record) validate() bool {
+func (r *Record) Validate() bool {
 	// validate but do not rely on "Complete" field
 	// to do: can I modify/update complete from here since I am being passed a pointer?
 	return true
@@ -60,7 +60,7 @@ func (r *Record) FilterByField(field, value string) *Record {
 
 func (r *Record) filterByTypeField(filterValue string) *Record {
 	// not exported, so r.Complete should have already been checked
-	if r.typeField == filterValue {
+	if r.TypeField == filterValue {
 		return r
 	} else {
 		r.Complete = false
@@ -70,7 +70,7 @@ func (r *Record) filterByTypeField(filterValue string) *Record {
 
 func (r *Record) filterByStrandField(filterValue byte) *Record {
 	// not exported, so r.Complete should have already been checked
-	if r.strandField == filterValue {
+	if r.StrandField == filterValue {
 		return r
 	} else {
 		r.Complete = false
@@ -89,7 +89,7 @@ func (r *Record) FilterByAttribute(attribute, filterValue string) *Record {
 		return r
 	}
 	// if attribute not found, return incomplete or empty record
-	rawv, ok := r.attributesField[attribute]
+	rawv, ok := r.AttributesField[attribute]
 	if !ok {
 		r.Complete = false
 		return r

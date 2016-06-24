@@ -88,24 +88,24 @@ func (r *Reader) parseRecord() (rec *Record, err error) {
 	}
 
 	rec = new(Record)
-	rec.seqidField = fields[0]
-	rec.sourceField = fields[1]
-	rec.typeField = fields[2]
-	rec.startField, _ = strconv.Atoi(fields[3])
-	rec.endField, _ = strconv.Atoi(fields[4])
-	rec.scoreField, _ = strconv.ParseFloat(fields[5], 64)
-	rec.strandField = fields[6][0] // one byte char: +, -, ., or ?
-	rec.phaseField, _ = strconv.Atoi(fields[7])
+	rec.SeqidField = fields[0]
+	rec.SourceField = fields[1]
+	rec.TypeField = fields[2]
+	rec.StartField, _ = strconv.Atoi(fields[3])
+	rec.EndField, _ = strconv.Atoi(fields[4])
+	rec.ScoreField, _ = strconv.ParseFloat(fields[5], 64)
+	rec.StrandField = fields[6][0] // one byte char: +, -, ., or ?
+	rec.PhaseField, _ = strconv.Atoi(fields[7])
 	// must initialize the nil map or face a runtime panic
-	rec.attributesField = make(map[string]string)
+	rec.AttributesField = make(map[string]string)
 	var kv []string
 	for _, attribute := range strings.Split(fields[8], ";") {
 		kv = strings.Split(attribute, "=")
-		rec.attributesField[kv[0]] = kv[1]
+		rec.AttributesField[kv[0]] = kv[1]
 	}
 
 	// validate is currently stub function always true
-	if rec.validate() {
+	if rec.Validate() {
 		rec.Complete = true
 		return rec, nil
 	} else {
@@ -113,46 +113,3 @@ func (r *Reader) parseRecord() (rec *Record, err error) {
 		return rec, nil
 	}
 }
-
-// loads a GFF3 record from a line of input into the Record struct
-// Wrote this before conversion to Reader object
-// deprecated - prefixed with x to avoid export
-/*
-func xLoadRecord(line string) *Record {
-	// ignore comment lines
-	if line[0] == '#' {
-		return new(Record)
-	}
-
-	// strip trailing newline, if any
-	line = strings.TrimSuffix(line, "\n")
-
-	// split into fields
-	fields := strings.Split(line, "\t")
-	if len(fields) != 9 {
-		// comment lines should already have been dealt with,
-		// so this is a malformed record
-		log.Fatalln("Malformed record: ", line)
-	}
-
-	r := new(Record)
-	r.seqidField = fields[0]
-	r.sourceField = fields[1]
-	r.typeField = fields[2]
-	r.startField, _ = strconv.Atoi(fields[3])
-	r.endField, _ = strconv.Atoi(fields[4])
-	r.scoreField, _ = strconv.ParseFloat(fields[5], 64)
-	r.strandField = fields[6][0] // one byte char: +, -, ., or ?
-	r.phaseField, _ = strconv.Atoi(fields[7])
-	//r.attributesField = fields[8]
-
-	// validate is currently stub function always true
-	if r.validate() {
-		r.Complete = true
-		return r
-	} else {
-		// need to return an error also
-		return r
-	}
-}
-*/
