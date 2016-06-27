@@ -97,12 +97,19 @@ func (r *Reader) parseRecord() (rec *Record, err error) {
 	rec.StrandField = fields[6][0] // one byte char: +, -, ., or ?
 	rec.PhaseField, _ = strconv.Atoi(fields[7])
 	// must initialize the nil map or face a runtime panic
+	// maybe better to do this here rather than the Record definition
+	//   just in case somebody wants to implement Record without the attribute field; it's slow
 	rec.AttributesField = make(map[string]string)
-	var i int
-	for _, attribute := range strings.Split(fields[8], ";") {
-		i = strings.Index(attribute, "=")
-		rec.AttributesField[attribute[:i]] = attribute[i+1:]
+	attrs := fields[8]
+	var eqIndex int
+	for i := strings.Index(attrs, ";"); i > 0; i = strings.Index(attrs, ";") {
+		eqIndex = strings.Index(attrs[:i], "=")
+		rec.AttributesField[attrs[:i][:eqIndex]] = attrs[:i][eqIndex+1:]
+		attrs = attrs[i+1:]
 	}
+	// no trailing semicolon on gtf lines; grab the last entry
+	eqIndex = strings.Index(attrs, "=")
+	rec.AttributesField[attrs[:eqIndex]] = attrs[eqIndex+1:]
 
 	// validate is currently stub function always true
 	if rec.Validate() {
